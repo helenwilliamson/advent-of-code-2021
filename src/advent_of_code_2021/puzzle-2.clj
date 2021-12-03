@@ -26,8 +26,31 @@
       position
       (recur (move current position) remaining))))
 
+(defn move-with-aim
+  [{:keys [direction value]} {:keys [horizontal depth aim] :as position}]
+  (case direction
+    "forward" (assoc position
+                     :horizontal (+ horizontal value)
+                     :depth (+ depth (* aim value)))
+    "down" (assoc position :aim (+ aim value))
+    "up" (assoc position :aim (- aim value))))
+
+(defn follow-course-with-aim
+  [data]
+  (loop [position {:horizontal 0 :depth 0 :aim 0}
+         [current & remaining] data]
+    (if (nil? current)
+      position
+      (recur (move-with-aim current position) remaining))))
+
 (defn version-1
   []
   (->> (read-input)
        (follow-course)
+       ((fn [{:keys [horizontal depth]}] (* horizontal depth)))))
+
+(defn version-2
+  []
+  (->> (read-input)
+       (follow-course-with-aim)
        ((fn [{:keys [horizontal depth]}] (* horizontal depth)))))
